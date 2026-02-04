@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "enchantment_storage",
+	"version": "${version}",
+	"name": "Enchantment Storage",
+	"description": "Extract and store all enchantments in a single block.",
+	"authors": [
+		"Lexxeous"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/enchantment_storage/textures/block/enchantment_extractor.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.lexxeous.enchantment_storage.EnchantmentStorage",
+		],
+		"client": [
+			"com.lexxeous.enchantment_storage.EnchantmentStorageClient"
+		],
+		"fabric-datagen": [
+			"com.lexxeous.enchantment_storage.EnchantmentStorageDataGenerator"
+		]
+	},
+	"mixins": [
+		"enchantment_storage.mixins.json",
+		{
+			"config": "enchantment_storage.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
