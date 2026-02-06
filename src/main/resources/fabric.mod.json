@@ -16,13 +16,13 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.lexxeous.enchantment_storage.EnchantmentStorage",
+			"com.lexxeous.enchantment_storage.EnchantmentStorage"
 		],
 		"client": [
 			"com.lexxeous.enchantment_storage.EnchantmentStorageClient"
 		],
 		"fabric-datagen": [
-			"com.lexxeous.enchantment_storage.EnchantmentStorageDataGenerator"
+			"com.lexxeous.enchantment_storage.datagen.EnchantmentStorageDataGenerator"
 		]
 	},
 	"mixins": [

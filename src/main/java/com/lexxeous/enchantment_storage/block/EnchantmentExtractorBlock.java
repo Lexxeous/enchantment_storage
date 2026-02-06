@@ -1,5 +1,8 @@
-package com.lexxeous.enchantment_storage;
+package com.lexxeous.enchantment_storage.block;
 
+import com.lexxeous.enchantment_storage.blockentity.EnchantmentExtractorBlockEntity;
+import com.lexxeous.enchantment_storage.EnchantmentStorage;
+import com.lexxeous.enchantment_storage.registry.ModBlockEntities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockState;
@@ -14,10 +17,11 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class EnchantmentExtractorBlock extends Block implements BlockEntityProvider {
-
+    // region Constructor(s)
     public EnchantmentExtractorBlock(Settings settings) {
         super(settings);
     }
+    // endregion
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
@@ -57,6 +61,9 @@ public class EnchantmentExtractorBlock extends Block implements BlockEntityProvi
                 "Enchantment Extractor used at {} by {} (hand={})",
                 pos, player.getName().getString(), player.getMainHandStack()
             );
+
+//            ChatComponent chatHud = Minecraft.getInstance().gui.getChat();
+//            chatHud.addMessage(Component.translatable("text.enchantment_extractor.use"));
         }
 
         return ActionResult.SUCCESS;

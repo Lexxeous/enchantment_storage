@@ -3,7 +3,7 @@
 	"package": "com.lexxeous.enchantment_storage.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"ExampleClientMixin"
+		"EnchantmentStorageClientMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

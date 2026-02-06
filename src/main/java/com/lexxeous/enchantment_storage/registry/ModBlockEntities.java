@@ -1,5 +1,7 @@
-package com.lexxeous.enchantment_storage;
+package com.lexxeous.enchantment_storage.registry;
 
+import com.lexxeous.enchantment_storage.EnchantmentStorage;
+import com.lexxeous.enchantment_storage.blockentity.EnchantmentExtractorBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
@@ -18,9 +20,9 @@ public class ModBlockEntities {
 
     public static final BlockEntityType<EnchantmentExtractorBlockEntity> ENCHANTMENT_EXTRACTOR =
         Registry.register(
-              Registries.BLOCK_ENTITY_TYPE,
-                    ENCHANTMENT_EXTRACTOR_BLOCK_ENTITY_ID,
-                    FabricBlockEntityTypeBuilder.create(EnchantmentExtractorBlockEntity::new,
-                            ModBlocks.ENCHANTMENT_EXTRACTOR_BLOCK).build()
+            Registries.BLOCK_ENTITY_TYPE,
+                ENCHANTMENT_EXTRACTOR_BLOCK_ENTITY_ID,
+                FabricBlockEntityTypeBuilder.create(EnchantmentExtractorBlockEntity::new,
+                    ModBlocks.ENCHANTMENT_EXTRACTOR_BLOCK).build()
         );
 }

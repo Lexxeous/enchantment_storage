@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "minecraft:block/cube_all",
   "textures": {
-    "layer0": "enchantment_storage:item/enchantment_extractor"
+    "all": "enchantment_storage:block/enchantment_extractor"
   }
 }
