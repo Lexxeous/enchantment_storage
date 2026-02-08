@@ -9,14 +9,18 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 public class ModBlockEntities {
+    // region Constant(s)
+    public static final Identifier ENCHANTMENT_EXTRACTOR_BLOCK_ENTITY_ID =
+            Identifier.of(EnchantmentStorage.MOD_ID, "enchantment_extractor");
+    // endregion
+
+    // region Constructor(s)
     private ModBlockEntities() {}
+    // endregion
 
     public static void init() {
         // Call this from your mod initializer to force class load, if you like.
     }
-
-    public static final Identifier ENCHANTMENT_EXTRACTOR_BLOCK_ENTITY_ID =
-            Identifier.of(EnchantmentStorage.MOD_ID, "enchantment_extractor");
 
     public static final BlockEntityType<EnchantmentExtractorBlockEntity> ENCHANTMENT_EXTRACTOR =
         Registry.register(

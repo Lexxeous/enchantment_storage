@@ -1,10 +1,13 @@
-package com.lexxeous.enchantment_storage.prototype;
+package com.lexxeous.enchantment_storage.mapping;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.minecraft.nbt.NbtByteArray;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
 
@@ -215,7 +218,7 @@ public class EnchantmentCategories {
     }
     // endregion
 
-    // region Helpers
+    // region Helper(s)
     private String safeName(String name) {
         return name == null ? "" : name;
     }

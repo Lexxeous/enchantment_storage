@@ -1,9 +1,17 @@
 package com.lexxeous.enchantment_storage.screen;
 
+import com.lexxeous.enchantment_storage.mapping.EnchantmentCategoriesHarness;
+import com.lexxeous.enchantment_storage.util.EnchantmentStorageUtils;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -26,7 +34,6 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
     private static final int LIST_WIDTH = 60;
     private static final int LIST_HEIGHT = 105;
     private static final int LIST_ITEM_HEIGHT = 21;
-    private static final int LIST_ITEM_COUNT = 30;
     private static final float LIST_ITEM_TEXT_SCALE = 0.70f;
     // endregion
 
@@ -37,6 +44,7 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
     private int selectedIndex = -1;
     private int selectedLevel = -1;
     private boolean isDraggingScroll = false;
+    private List<Identifier> enchantmentOrder = List.of();
     // endregion
 
     // region Constructor(s)
@@ -51,6 +59,7 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
     @Override
     protected void init() {
         super.init();
+        this.enchantmentOrder = EnchantmentCategoriesHarness.getRegistryOrder(getEnchantmentRegistry());
         int x = (this.width - this.backgroundWidth) / 2;
         int y = (this.height - this.backgroundHeight) / 2;
 
@@ -61,20 +70,22 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
         int extractButtonX = x + 126;
         int actionButtonY = y + 107;
 
-        this.storeButton = ButtonWidget.builder(Text.literal("Store"), button ->
+        this.storeButton = ButtonWidget.builder(Text.literal("Store"), button -> {
                 this.client.interactionManager.clickButton(
                         this.handler.syncId,
                         EnchantmentExtractorScreenHandler.BUTTON_STORE
-                )
-        ).dimensions(storeButtonX, actionButtonY, 44, 16).build();
+                );
+                this.handler.clearSelection();
+        }).dimensions(storeButtonX, actionButtonY, 44, 16).build();
         this.addDrawableChild(this.storeButton);
 
-        this.extractButton = ButtonWidget.builder(Text.literal("Extract"), button ->
+        this.extractButton = ButtonWidget.builder(Text.literal("Extract"), button -> {
                 this.client.interactionManager.clickButton(
                         this.handler.syncId,
                         EnchantmentExtractorScreenHandler.BUTTON_EXTRACT
-                )
-        ).dimensions(extractButtonX, actionButtonY, 44, 16).build();
+                );
+                this.handler.clearSelection();
+        }).dimensions(extractButtonX, actionButtonY, 44, 16).build();
         this.addDrawableChild(this.extractButton);
     }
 
@@ -109,7 +120,7 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         if (isMouseOverList(mouseX, mouseY)) {
             // Clamp scroll offset to the number of off-screen entries.
-            int maxOffset = Math.max(0, LIST_ITEM_COUNT - getVisibleEntries());
+            int maxOffset = Math.max(0, getEntryCount() - getVisibleEntries());
             scrollOffset = Math.max(0, Math.min(maxOffset, scrollOffset - (int) Math.signum(verticalAmount)));
             return true;
         }
@@ -128,10 +139,22 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
             int y = (this.height - this.backgroundHeight) / 2;
             int localY = (int) click.y() - (y + LIST_Y_OFFSET);
             int index = scrollOffset + (localY / LIST_ITEM_HEIGHT);
-            if (index >= 0 && index < LIST_ITEM_COUNT) {
+            if (index >= 0 && index < getEntryCount()) {
+                List<Integer> rows = getVisibleRows();
                 selectedIndex = index;
                 int localX = (int) click.x() - (x + LIST_X_OFFSET);
                 selectedLevel = getRankIndexFromLocal(localX, localY);
+                if (selectedLevel >= 0 && index < rows.size()) {
+                    int rowIndex = rows.get(index);
+                    int gridIndex = (rowIndex * RANK_COUNT) + selectedLevel;
+                    this.handler.setSelectedGridIndex(gridIndex);
+                    if (this.client != null && this.client.interactionManager != null) {
+                        this.client.interactionManager.clickButton(
+                            this.handler.syncId,
+                            EnchantmentExtractorScreenHandler.BUTTON_GRID_BASE + gridIndex
+                        );
+                    }
+                }
                 return true;
             }
         }
@@ -157,10 +180,18 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
     // region Helper(s)
     // region Helper method(s)
     private void drawSelectionList(net.minecraft.client.gui.DrawContext context, int x, int y) {
+        if (enchantmentOrder.isEmpty()) {
+            enchantmentOrder = EnchantmentCategoriesHarness.getRegistryOrder(getEnchantmentRegistry());
+        }
         int listX = x + LIST_X_OFFSET;
         int listY = y + LIST_Y_OFFSET;
+        List<Integer> rows = getVisibleRows();
         int visible = getVisibleEntries();
-        int end = Math.min(LIST_ITEM_COUNT, scrollOffset + visible);
+        int maxOffset = Math.max(0, rows.size() - visible);
+        if (scrollOffset > maxOffset) {
+            scrollOffset = maxOffset;
+        }
+        int end = Math.min(rows.size(), scrollOffset + visible);
         int entryPaddingX = 2;
         int entryTextYOffset = 2;
         int rankRowYOffset = 10;
@@ -169,13 +200,19 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
         // Evenly space rank squares across the row (CSS space-between style).
         double rankGap = Math.max(1.0, (listContentWidth - (RANK_COUNT * rankSquareSize)) / (double) (RANK_COUNT + 1));
 
+        if (selectedIndex >= rows.size()) {
+            selectedIndex = -1;
+            selectedLevel = -1;
+        }
+
         for (int i = scrollOffset; i < end; i++) {
             int row = i - scrollOffset;
+            int rowIndex = rows.get(i);
             int top = listY + row * LIST_ITEM_HEIGHT;
             int bottom = top + LIST_ITEM_HEIGHT - 1;
             int bg = i == selectedIndex ? 0xFFBBBBBB : 0xFFDDDDDD;
             context.fill(listX, top, listX + LIST_WIDTH, bottom, bg);
-            drawScaledText(context, getEnchantmentName(i), listX + entryPaddingX, top + entryTextYOffset, LIST_ITEM_TEXT_SCALE, 0xFF000000);
+            drawScaledText(context, getEnchantmentName(rowIndex), listX + entryPaddingX, top + entryTextYOffset, LIST_ITEM_TEXT_SCALE, 0xFF000000);
 
             int rankStartX = listX + entryPaddingX;
             int rankY = top + rankRowYOffset;
@@ -203,7 +240,7 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
         int barX = listX + SCROLL_X_OFFSET;
         int barY = listY;
         int barHeight = LIST_HEIGHT - 1;
-        int maxOffset = Math.max(0, LIST_ITEM_COUNT - getVisibleEntries());
+        int maxOffset = Math.max(0, getEntryCount() - getVisibleEntries());
 
         context.fill(barX, barY, barX + SCROLL_WIDTH, barY + barHeight, 0xFFCCCCCC);
         if (maxOffset == 0) {
@@ -212,9 +249,41 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
         }
 
         // Thumb size scales with visible entries vs total entries.
-        int thumbHeight = Math.max(8, (barHeight * getVisibleEntries()) / LIST_ITEM_COUNT);
+        int thumbHeight = Math.max(8, (barHeight * getVisibleEntries()) / Math.max(1, getEntryCount()));
         int thumbY = barY + (barHeight - thumbHeight) * scrollOffset / maxOffset;
         context.fill(barX, thumbY, barX + SCROLL_WIDTH, thumbY + thumbHeight, 0xFF888888);
+    }
+
+    private void drawScaledText(net.minecraft.client.gui.DrawContext context, String text, int x, int y, float scale, int color) {
+        var matrices = context.getMatrices();
+        matrices.pushMatrix();
+        matrices.translate((float) x, (float) y);
+        matrices.scale(scale, scale);
+        context.drawText(this.textRenderer, text, 0, 0, color, false);
+        matrices.popMatrix();
+    }
+
+    private void drawRemainingInfo(net.minecraft.client.gui.DrawContext context, int x, int y) {
+        String totalText = getTotalRemainingText();
+        String levelsText = getLevelsRemainingText();
+
+        drawScaledText(
+                context,
+                "Total Remaining: " + totalText,
+                x + INFO_TEXT_X,
+                y + INFO_TOTAL_Y_OFFSET,
+                INFO_TEXT_SCALE,
+                INFO_TEXT_COLOR
+        );
+
+        drawScaledText(
+                context,
+                "Levels Remaining: " + levelsText,
+                x + INFO_TEXT_X,
+                y + INFO_LEVELS_Y_OFFSET,
+                INFO_TEXT_SCALE,
+                INFO_TEXT_COLOR
+        );
     }
 
     private void drawSlotOutlines(net.minecraft.client.gui.DrawContext context, int x, int y) {
@@ -236,27 +305,8 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
         return LIST_HEIGHT / LIST_ITEM_HEIGHT;
     }
 
-    private boolean isMouseOverList(double mouseX, double mouseY) {
-        int x = (this.width - this.backgroundWidth) / 2;
-        int y = (this.height - this.backgroundHeight) / 2;
-        int left = x + LIST_X_OFFSET;
-        int right = left + LIST_WIDTH;
-        int top = y + LIST_Y_OFFSET;
-        int bottom = top + LIST_HEIGHT;
-        return mouseX >= left && mouseX < right && mouseY >= top && mouseY < bottom;
-    }
-
-    private boolean isMouseOverScrollBar(double mouseX, double mouseY) {
-        int x = (this.width - this.backgroundWidth) / 2;
-        int y = (this.height - this.backgroundHeight) / 2;
-        int barX = x + LIST_X_OFFSET + SCROLL_X_OFFSET;
-        int barY = y + LIST_Y_OFFSET;
-        int barHeight = LIST_HEIGHT - 1;
-        return mouseX >= barX && mouseX < barX + SCROLL_WIDTH && mouseY >= barY && mouseY < barY + barHeight;
-    }
-
     private void updateScrollOffsetFromMouse(double mouseY) {
-        int maxOffset = Math.max(0, LIST_ITEM_COUNT - getVisibleEntries());
+        int maxOffset = Math.max(0, getEntryCount() - getVisibleEntries());
         if (maxOffset == 0) {
             scrollOffset = 0;
             return;
@@ -264,20 +314,11 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
         int y = (this.height - this.backgroundHeight) / 2;
         int barY = y + LIST_Y_OFFSET;
         int barHeight = LIST_HEIGHT - 1;
-        int thumbHeight = Math.max(8, (barHeight * getVisibleEntries()) / LIST_ITEM_COUNT);
+        int thumbHeight = Math.max(8, (barHeight * getVisibleEntries()) / Math.max(1, getEntryCount()));
         double track = barHeight - thumbHeight;
         double normalized = (mouseY - barY - (thumbHeight / 2.0)) / track;
         int next = (int) Math.round(normalized * maxOffset);
         scrollOffset = Math.max(0, Math.min(maxOffset, next));
-    }
-
-    private void drawScaledText(net.minecraft.client.gui.DrawContext context, String text, int x, int y, float scale, int color) {
-        var matrices = context.getMatrices();
-        matrices.pushMatrix();
-        matrices.translate((float) x, (float) y);
-        matrices.scale(scale, scale);
-        context.drawText(this.textRenderer, text, 0, 0, color, false);
-        matrices.popMatrix();
     }
 
     private void updateActionButtons() {
@@ -286,43 +327,37 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
         extractButton.active = this.handler.canExtract();
     }
 
-    private void drawRemainingInfo(net.minecraft.client.gui.DrawContext context, int x, int y) {
-        String totalText = getTotalRemainingText();
-        String levelsText = getLevelsRemainingText();
 
-        drawScaledText(
-            context,
-            "Total Remaining: " + totalText,
-            x + INFO_TEXT_X,
-            y + INFO_TOTAL_Y_OFFSET,
-            INFO_TEXT_SCALE,
-            INFO_TEXT_COLOR
-        );
 
-        drawScaledText(
-            context,
-            "Levels Remaining: " + levelsText,
-            x + INFO_TEXT_X,
-            y + INFO_LEVELS_Y_OFFSET,
-            INFO_TEXT_SCALE,
-            INFO_TEXT_COLOR
-        );
-    }
-
+    // region Remaining
     private String getTotalRemainingText() {
         if (selectedIndex < 0) return "__";
-        return String.valueOf(99);
+        List<Integer> rows = getVisibleRows();
+        if (selectedIndex >= rows.size()) return "__";
+        int rowIndex = rows.get(selectedIndex);
+        return String.valueOf(getTotalForRow(rowIndex));
     }
 
     private String getLevelsRemainingText() {
         if (selectedIndex < 0 || selectedLevel < 0) return "__";
-        return String.valueOf(9);
+        List<Integer> rows = getVisibleRows();
+        if (selectedIndex >= rows.size()) return "__";
+        int rowIndex = rows.get(selectedIndex);
+        return String.valueOf(getLevelCount(rowIndex, selectedLevel));
     }
+    // endregion
 
-    private String getEnchantmentName(int index) {
-        if (index == 0) return "Efficiency";
-        if (index == 1) return "Smite";
-        return "Enchantment " + (index + 1);
+    private String getEnchantmentName(int rowIndex) {
+        if (rowIndex < 0 || rowIndex >= enchantmentOrder.size()) {
+            return "";
+        }
+        Identifier id = enchantmentOrder.get(rowIndex);
+        String translationKey = "enchantment." + id.getNamespace() + "." + id.getPath();
+        String name = Text.translatable(translationKey).getString();
+        if (name.equals(translationKey)) {
+            return EnchantmentStorageUtils.formatFallbackName(id.getPath());
+        }
+        return name;
     }
 
     private String getRomanNumeral(int levelIndex) {
@@ -353,6 +388,66 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
             if (localX >= rx && localX <= rx + rankCellSize) return r;
         }
         return -1;
+    }
+
+    private int getEntryCount() {
+        if (enchantmentOrder.isEmpty()) {
+            enchantmentOrder = EnchantmentCategoriesHarness.getRegistryOrder(getEnchantmentRegistry());
+        }
+        return getVisibleRows().size();
+    }
+
+    private List<Integer> getVisibleRows() {
+        if (enchantmentOrder.isEmpty()) {
+            enchantmentOrder = EnchantmentCategoriesHarness.getRegistryOrder(getEnchantmentRegistry());
+        }
+        List<Integer> rows = new ArrayList<>();
+        for (int row = 0; row < enchantmentOrder.size(); row++) {
+            if (getTotalForRow(row) > 0) {
+                rows.add(row);
+            }
+        }
+        return rows;
+    }
+
+    private Registry<Enchantment> getEnchantmentRegistry() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client == null || client.world == null) {
+            return null;
+        }
+        return client.world.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT);
+    }
+
+    private int getTotalForRow(int rowIndex) {
+        int total = 0;
+        for (int col = 0; col < RANK_COUNT; col++) {
+            total += handler.getGridValue(rowIndex, col);
+        }
+        return total;
+    }
+
+    private int getLevelCount(int rowIndex, int levelIndex) {
+        if (levelIndex < 0 || levelIndex >= RANK_COUNT) return 0;
+        return handler.getGridValue(rowIndex, levelIndex);
+    }
+
+    private boolean isMouseOverList(double mouseX, double mouseY) {
+        int x = (this.width - this.backgroundWidth) / 2;
+        int y = (this.height - this.backgroundHeight) / 2;
+        int left = x + LIST_X_OFFSET;
+        int right = left + LIST_WIDTH;
+        int top = y + LIST_Y_OFFSET;
+        int bottom = top + LIST_HEIGHT;
+        return mouseX >= left && mouseX < right && mouseY >= top && mouseY < bottom;
+    }
+
+    private boolean isMouseOverScrollBar(double mouseX, double mouseY) {
+        int x = (this.width - this.backgroundWidth) / 2;
+        int y = (this.height - this.backgroundHeight) / 2;
+        int barX = x + LIST_X_OFFSET + SCROLL_X_OFFSET;
+        int barY = y + LIST_Y_OFFSET;
+        int barHeight = LIST_HEIGHT - 1;
+        return mouseX >= barX && mouseX < barX + SCROLL_WIDTH && mouseY >= barY && mouseY < barY + barHeight;
     }
     // endregion
 

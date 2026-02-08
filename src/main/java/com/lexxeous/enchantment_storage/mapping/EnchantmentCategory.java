@@ -1,4 +1,4 @@
-package com.lexxeous.enchantment_storage.prototype;
+package com.lexxeous.enchantment_storage.mapping;
 
 import net.minecraft.util.Identifier;
 

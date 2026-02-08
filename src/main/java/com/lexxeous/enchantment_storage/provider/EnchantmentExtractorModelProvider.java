@@ -1,4 +1,4 @@
-package com.lexxeous.enchantment_storage.providers;
+package com.lexxeous.enchantment_storage.provider;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 

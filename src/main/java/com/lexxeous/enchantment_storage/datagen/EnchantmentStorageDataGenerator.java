@@ -1,14 +1,16 @@
 package com.lexxeous.enchantment_storage.datagen;
 
-import com.lexxeous.enchantment_storage.providers.EnchantmentExtractorEnglishLangProvider;
+import com.lexxeous.enchantment_storage.provider.EnchantmentExtractorEnglishLangProvider;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 
 public class EnchantmentStorageDataGenerator implements DataGeneratorEntrypoint {
+	// region Override(s)
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
 		FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
 		pack.addProvider(EnchantmentExtractorEnglishLangProvider::new);
-//		pack.addProvider(EnchantmentExtractorModelProvider::new);
+		// pack.addProvider(EnchantmentExtractorModelProvider::new);
 	}
+	// endregion
 }
