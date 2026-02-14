@@ -55,8 +55,6 @@ public class EnchantmentExtractorBlockEntity extends BlockEntity implements Side
     // endregion
 
     // region Class Variable(s)
-    private int progress = 0;
-    private final int maxProgress = 200; // arbitrary for now
     private DefaultedList<ItemStack> items = DefaultedList.ofSize(INVENTORY_SIZE, ItemStack.EMPTY);
     private int mode = MODE_STORE;
     private int[] enchantmentGrid = new int[GRID_SIZE];
@@ -160,10 +158,15 @@ public class EnchantmentExtractorBlockEntity extends BlockEntity implements Side
         if (slot == SLOT_LAPIS) return stack.isOf(Items.LAPIS_LAZULI);
 
         if (slot == SLOT_INPUT) {
+            if (stack.isOf(Items.BOOK)) {
+                return true;
+            }
+
             if (mode == MODE_STORE) {
                 return stack.hasEnchantments() || stack.isOf(Items.ENCHANTED_BOOK);
             }
-            return stack.isOf(Items.BOOK);
+
+            return false;
         }
 
         return false;
@@ -191,7 +194,7 @@ public class EnchantmentExtractorBlockEntity extends BlockEntity implements Side
         }
         view.read("EnchantmentCategories", NbtCompound.CODEC)
             .ifPresent(categories::readNbt);
-        if (!categories.getSortedEnchantments().isEmpty()) {
+        if (world != null && getEnchantmentRegistry() != null && !categories.getSortedEnchantments().isEmpty()) {
             applyCategoriesToGrid(categories, getRegistryOrder());
         }
     }
@@ -205,28 +208,6 @@ public class EnchantmentExtractorBlockEntity extends BlockEntity implements Side
         view.put("EnchantmentCategories", NbtCompound.CODEC, categories.toNbt());
     }
     // endregion
-    // endregion
-
-    // region Hook(s)
-    public static void tick(
-        net.minecraft.world.World world,
-        net.minecraft.util.math.BlockPos pos,
-        BlockState state,
-        EnchantmentExtractorBlockEntity be)
-    {
-        if (world.isClient()) return;
-
-        if (!be.getStack(SLOT_INPUT).isEmpty()) {
-            be.progress++;
-            if (be.progress >= be.maxProgress) {
-                be.progress = 0;
-                // later: do extraction
-            }
-            be.markDirty();
-        } else {
-            be.progress = 0;
-        }
-    }
     // endregion
 
     // region Getter(s) & Setter(s)
@@ -258,6 +239,28 @@ public class EnchantmentExtractorBlockEntity extends BlockEntity implements Side
         if (index < 0 || index >= enchantmentGrid.length) return;
         enchantmentGrid[index] = value;
         markDirty();
+    }
+
+    public boolean hasStoredEnchantData() {
+        for (int value : enchantmentGrid) {
+            if (value > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasPersistentExtractorData() {
+        if (hasStoredEnchantData()) {
+            return true;
+        }
+        return mode != MODE_STORE || !categories.getSortedEnchantments().isEmpty();
+    }
+
+    public void writePersistentDataWithoutInventory(WriteView view) {
+        view.putInt("Mode", this.mode);
+        view.putIntArray("EnchantmentGrid", this.enchantmentGrid);
+        view.put("EnchantmentCategories", NbtCompound.CODEC, categories.toNbt());
     }
     // endregion
 

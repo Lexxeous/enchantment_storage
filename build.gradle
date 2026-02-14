@@ -30,6 +30,14 @@ loom {
 		}
 	}
 
+	runs {
+		client {
+			vmArg "-Xms1G"
+			vmArg "-Xmx2G"
+			vmArg "-XX:+UseG1GC"
+			vmArg "-XX:MaxGCPauseMillis=100"
+		}
+	}
 }
 
 fabricApi {
@@ -50,7 +58,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 
 	// Mojang vs. Yarn mappings
-//	mappings loom.officialMojangMappings()
+    // mappings loom.officialMojangMappings()
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -72,10 +80,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
+	// Loom will automatically attach sourcesJar to RemapSourcesJar task and "build" task
+	withSourcesJar() // DO NOT REMOVE
 
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21

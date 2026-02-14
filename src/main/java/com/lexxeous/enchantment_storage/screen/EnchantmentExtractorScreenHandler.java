@@ -117,6 +117,10 @@ public class EnchantmentExtractorScreenHandler extends ScreenHandler {
         return inventory.getStack(EnchantmentExtractorBlockEntity.SLOT_INPUT);
     }
 
+    public ItemStack getLapisStack() {
+        return inventory.getStack(EnchantmentExtractorBlockEntity.SLOT_LAPIS);
+    }
+
     public void addSlotPublic(net.minecraft.screen.slot.Slot slot) {
         this.addSlot(slot);
     }

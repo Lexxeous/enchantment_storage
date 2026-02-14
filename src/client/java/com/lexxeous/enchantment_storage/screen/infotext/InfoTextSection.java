@@ -13,8 +13,9 @@ public final class InfoTextSection {
     private static final int INFO_SPACING = 12;
     private static final int INFO_TOTAL_Y_OFFSET = INFO_EXP_Y_OFFSET + INFO_SPACING;
     private static final int INFO_LEVELS_Y_OFFSET = INFO_TOTAL_Y_OFFSET + INFO_SPACING;
-    private static final int INFO_TEXT_COLOR = 0xFF000000;
+    private static final int INFO_TEXT_COLOR = 0xFF404040;
     private static final float INFO_TEXT_SCALE = 0.85f;
+    private final EnchantmentStorageUtils.StoreCostCache storeCostCache = new EnchantmentStorageUtils.StoreCostCache();
 
     public void draw(
         DrawContext context,
@@ -27,16 +28,32 @@ public final class InfoTextSection {
     ) {
         String totalText = listSection.getTotalRemainingText(handler);
         String levelsText = listSection.getLevelsRemainingText(handler);
+        int experienceCost = getExperienceCost(listSection, handler);
+        String experienceCostText = experienceCost < 0 ? "＿" : String.valueOf(experienceCost);
+        int experienceCostColor = getExperienceCostColor(experienceCost, client);
+        boolean drawExperienceShadow = shouldDrawExperienceShadow(experienceCost);
 
-        drawScaledText(
-            context,
-            textRenderer,
-            "Experience Cost: " + getExperienceCostText(listSection, handler),
-            x + INFO_TEXT_X,
-            y + INFO_EXP_Y_OFFSET,
-            INFO_TEXT_SCALE,
-            getExperienceCostColor(listSection, handler, client)
-        );
+        if (drawExperienceShadow) {
+            drawScaledTextWithShadow(
+                context,
+                textRenderer,
+                "Experience Cost: " + experienceCostText,
+                x + INFO_TEXT_X,
+                y + INFO_EXP_Y_OFFSET,
+                INFO_TEXT_SCALE,
+                experienceCostColor
+            );
+        } else {
+            drawScaledText(
+                context,
+                textRenderer,
+                "Experience Cost: " + experienceCostText,
+                x + INFO_TEXT_X,
+                y + INFO_EXP_Y_OFFSET,
+                INFO_TEXT_SCALE,
+                experienceCostColor
+            );
+        }
 
         drawScaledText(
             context,
@@ -76,20 +93,28 @@ public final class InfoTextSection {
         matrices.popMatrix();
     }
 
-    private String getExperienceCostText(ListSection listSection, EnchantmentExtractorScreenHandler handler) {
-        int cost = getExperienceCost(listSection, handler);
-        if (cost < 0) {
-            return "__";
-        }
-        return String.valueOf(cost);
+    private void drawScaledTextWithShadow(
+        DrawContext context,
+        TextRenderer textRenderer,
+        String text,
+        int x,
+        int y,
+        float scale,
+        int color
+    ) {
+        var matrices = context.getMatrices();
+        matrices.pushMatrix();
+        matrices.translate((float) x, (float) y);
+        matrices.scale(scale, scale);
+        context.drawTextWithShadow(textRenderer, text, 0, 0, color);
+        matrices.popMatrix();
     }
 
-    private int getExperienceCostColor(
-        ListSection listSection,
-        EnchantmentExtractorScreenHandler handler,
-        MinecraftClient client
-    ) {
-        int cost = getExperienceCost(listSection, handler);
+    private boolean shouldDrawExperienceShadow(int cost) {
+        return cost >= 0;
+    }
+
+    private int getExperienceCostColor(int cost, MinecraftClient client) {
         if (cost < 0) {
             return INFO_TEXT_COLOR;
         }
@@ -102,18 +127,26 @@ public final class InfoTextSection {
 
     private int getExperienceCost(ListSection listSection, EnchantmentExtractorScreenHandler handler) {
         if (listSection.hasSelection()) {
-            return listSection.getSelectedExtractCost(handler);
+            int selectedCost = listSection.getSelectedExtractCost(handler);
+            if (selectedCost <= 0) {
+                return -1;
+            }
+            return EnchantmentStorageUtils.getDiscountedCost(
+                selectedCost,
+                handler.getLapisStack()
+            );
         }
         int storeCost = getStoreExperienceCost(handler);
-        return storeCost > 0 ? storeCost : -1;
+        if (storeCost <= 0) {
+            return -1;
+        }
+        return EnchantmentStorageUtils.getDiscountedCost(
+            storeCost,
+            handler.getLapisStack()
+        );
     }
 
     private int getStoreExperienceCost(EnchantmentExtractorScreenHandler handler) {
-        var input = handler.getInputStack();
-        if (input.isEmpty()) {
-            return -1;
-        }
-        int total = EnchantmentStorageUtils.getEnchantmentLevelTotal(input);
-        return total > 0 ? total : -1;
+        return storeCostCache.get(handler.getInputStack());
     }
 }

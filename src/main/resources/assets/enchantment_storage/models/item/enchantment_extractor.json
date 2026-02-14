@@ -1,6 +1,3 @@
 {
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "enchantment_storage:block/enchantment_extractor"
-  }
+  "parent": "enchantment_storage:block/enchantment_extractor"
 }

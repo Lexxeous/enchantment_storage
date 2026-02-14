@@ -6,12 +6,12 @@ import com.lexxeous.enchantment_storage.screen.list.ListSection;
 import com.lexxeous.enchantment_storage.util.EnchantmentStorageUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 
 public final class ButtonSection {
     private ButtonWidget storeButton;
     private ButtonWidget extractButton;
+    private final EnchantmentStorageUtils.StoreCostCache storeCostCache = new EnchantmentStorageUtils.StoreCostCache();
 
     public void init(EnchantmentStorageClientScreen screen, int x, int y) {
         int storeButtonX = x + 78;
@@ -43,26 +43,23 @@ public final class ButtonSection {
         MinecraftClient client
     ) {
         if (storeButton == null || extractButton == null) return;
-        int storeCost = getStoreExperienceCost(handler);
+        int storeCost = EnchantmentStorageUtils.getDiscountedCost(
+            storeCostCache.get(handler.getInputStack()),
+            handler.getLapisStack()
+        );
         storeButton.active = handler.canStore() && canAffordExperience(storeCost, client);
         boolean canExtract = handler.canExtract();
         if (canExtract && listSection.isSelectedEnchantmentOnInput(handler)) {
             canExtract = false;
         }
-        int extractCost = listSection.getSelectedExtractCost(handler);
+        int extractCost = EnchantmentStorageUtils.getDiscountedCost(
+            listSection.getSelectedExtractCost(handler),
+            handler.getLapisStack()
+        );
         if (canExtract && !canAffordExperience(extractCost, client)) {
             canExtract = false;
         }
         extractButton.active = canExtract;
-    }
-
-    private int getStoreExperienceCost(EnchantmentExtractorScreenHandler handler) {
-        ItemStack input = handler.getInputStack();
-        if (input.isEmpty()) {
-            return -1;
-        }
-        int total = EnchantmentStorageUtils.getEnchantmentLevelTotal(input);
-        return total > 0 ? total : -1;
     }
 
     private boolean canAffordExperience(int cost, MinecraftClient client) {

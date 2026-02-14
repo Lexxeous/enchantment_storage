@@ -54,15 +54,8 @@ public class EnchantmentStorage implements ModInitializer {
 	// endregion
 }
 
-// region Notes
-
-// endregion
-
 // region TODOs
-
 // TODO: Create Regions
-// TODO: Turn rank squares into buttons to better center text?
-// TODO: Dont render rank squares that dont have any stored
-// TODO: Dont render rank squares that cannot store that rank (Mending I only) (Unbreaking I-III)
-
+// TODO: Look at enabling GC logging via JVM run config -Xlog:gc*:file=gc.log:time,uptime,level,tags?
+// TODO: Code cleanup
 // endregion

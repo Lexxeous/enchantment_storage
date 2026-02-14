@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.List;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.registry.Registry;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 public final class EnchantmentCategoriesHarness {
@@ -30,19 +29,5 @@ public final class EnchantmentCategoriesHarness {
         ids.addAll(registry.getIds());
         ids.sort(Comparator.comparing(Identifier::toString));
         return ids;
-    }
-
-    public static void runDemo(Registry<Enchantment> registry) {
-        EnchantmentCategories categories = buildDemoCategories(registry);
-
-        NbtCompound tag = categories.toNbt();
-        EnchantmentCategories reloaded = new EnchantmentCategories();
-        reloaded.readNbt(tag);
-
-        EnchantmentCategories.NameResolver resolver = id -> id.getPath();
-        for (Identifier id : reloaded.getSortedEnchantments(resolver)) {
-            int total = reloaded.getTotalForEnchantment(id);
-            System.out.println(id + " => " + total);
-        }
     }
 }

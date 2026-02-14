@@ -1,9 +1,9 @@
 package com.lexxeous.enchantment_storage.registry;
 
 import com.lexxeous.enchantment_storage.EnchantmentStorage;
+import com.lexxeous.enchantment_storage.item.EnchantmentExtractorBlockItem;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.Block;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -30,7 +30,7 @@ public class ModItems implements ModInitializer {
             );
 
     public static final Item ENCHANTMENT_EXTRACTOR_ITEM =
-            new BlockItem(
+            new EnchantmentExtractorBlockItem(
                     ModBlocks.ENCHANTMENT_EXTRACTOR_BLOCK,
                     new Item.Settings().registryKey(ENCHANTMENT_EXTRACTOR_ITEM_KEY)
             );

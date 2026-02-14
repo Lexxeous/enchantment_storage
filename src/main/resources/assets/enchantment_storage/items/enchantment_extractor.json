@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "enchantment_storage:item/enchantment_extractor"
+  }
+}

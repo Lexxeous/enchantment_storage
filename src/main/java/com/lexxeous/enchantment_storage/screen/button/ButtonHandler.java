@@ -103,7 +103,10 @@ public final class ButtonHandler {
             return false;
         }
 
-        int experienceCost = EnchantmentStorageUtils.getEnchantmentLevelTotal(input);
+        int baseCost = EnchantmentStorageUtils.getEnchantmentLevelTotal(input);
+        ItemStack lapis = inventory.getStack(EnchantmentExtractorBlockEntity.SLOT_LAPIS);
+        int lapisUsed = EnchantmentStorageUtils.getLapisDiscountUsed(baseCost, lapis);
+        int experienceCost = EnchantmentStorageUtils.getDiscountedCost(baseCost, lapis);
         if (!canAffordExperience(player, experienceCost)) {
             return false;
         }
@@ -142,6 +145,7 @@ public final class ButtonHandler {
 
         inventory.setStack(EnchantmentExtractorBlockEntity.SLOT_OUTPUT, output);
         decrementInputStack(input);
+        consumeLapis(lapis, lapisUsed);
         chargeExperience(player, experienceCost);
         return true;
     }
@@ -180,7 +184,10 @@ public final class ButtonHandler {
         }
 
         int rank = col + 1;
-        if (!canAffordExperience(player, rank)) {
+        ItemStack lapis = inventory.getStack(EnchantmentExtractorBlockEntity.SLOT_LAPIS);
+        int lapisUsed = EnchantmentStorageUtils.getLapisDiscountUsed(rank, lapis);
+        int experienceCost = EnchantmentStorageUtils.getDiscountedCost(rank, lapis);
+        if (!canAffordExperience(player, experienceCost)) {
             return false;
         }
         ItemStack output = input.isOf(Items.ENCHANTED_BOOK)
@@ -191,7 +198,8 @@ public final class ButtonHandler {
         inventory.setStack(EnchantmentExtractorBlockEntity.SLOT_OUTPUT, output);
         blockEntity.debugAdjustEnchantment(enchantmentId, col, -1);
         decrementInputStack(input);
-        chargeExperience(player, rank);
+        consumeLapis(lapis, lapisUsed);
+        chargeExperience(player, experienceCost);
         return true;
     }
 
@@ -213,6 +221,18 @@ public final class ButtonHandler {
             return true;
         }
         return player.isCreative() || player.experienceLevel >= experienceCost;
+    }
+
+    private void consumeLapis(ItemStack lapis, int lapisUsed) {
+        if (lapisUsed <= 0 || lapis.isEmpty()) {
+            return;
+        }
+        if (lapis.getCount() > lapisUsed) {
+            lapis.decrement(lapisUsed);
+        } else {
+            lapis = ItemStack.EMPTY;
+        }
+        inventory.setStack(EnchantmentExtractorBlockEntity.SLOT_LAPIS, lapis);
     }
 
     private void chargeExperience(PlayerEntity player, int experienceCost) {

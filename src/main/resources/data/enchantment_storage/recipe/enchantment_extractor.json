@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DED",
+    "LOL",
+    "OOO"
+  ],
+  "key": {
+    "D": "minecraft:dragon_breath",
+    "E": "minecraft:ender_eye",
+    "L": "minecraft:lapis_lazuli",
+    "O": "minecraft:obsidian"
+  },
+  "result": {
+    "id": "enchantment_storage:enchantment_extractor",
+    "count": 1
+  }
+}

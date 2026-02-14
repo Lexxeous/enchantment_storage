@@ -4,7 +4,9 @@ import com.lexxeous.enchantment_storage.mapping.EnchantmentCategoriesHarness;
 import com.lexxeous.enchantment_storage.screen.EnchantmentExtractorScreenHandler;
 import com.lexxeous.enchantment_storage.util.EnchantmentStorageUtils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Click;
@@ -24,6 +26,8 @@ public final class ListSection {
     private static final int LIST_HEIGHT = 105;
     private static final int LIST_ITEM_HEIGHT = 21;
     private static final float LIST_ITEM_TEXT_SCALE = 0.70f;
+    private static final int RANK_ROW_Y_OFFSET = 9;
+    private static final int RANK_SQUARE_SIZE = 10;
 
     private int scrollOffset = 0;
     private int selectedIndex = -1;
@@ -31,12 +35,29 @@ public final class ListSection {
     private boolean isDraggingScroll = false;
     private List<Identifier> enchantmentOrder = List.of();
     private Registry<Enchantment> registry;
+    private final List<Integer> visibleRows = new ArrayList<>();
+    private final Map<Identifier, String> enchantmentNameCache = new HashMap<>();
+    private int visibleRowsFingerprint = Integer.MIN_VALUE;
+    private long lastVisibleRowsWorldTime = Long.MIN_VALUE;
 
     public void updateRegistryOrder(Registry<Enchantment> registry) {
+        if (this.registry == registry) {
+            return;
+        }
+
         this.registry = registry;
-        if (enchantmentOrder.isEmpty() && registry != null) {
+        if (registry == null) {
+            enchantmentOrder = List.of();
+        } else {
             enchantmentOrder = EnchantmentCategoriesHarness.getRegistryOrder(registry);
         }
+
+        enchantmentNameCache.clear();
+        visibleRows.clear();
+        visibleRowsFingerprint = Integer.MIN_VALUE;
+        lastVisibleRowsWorldTime = Long.MIN_VALUE;
+        selectedIndex = -1;
+        selectedLevel = -1;
     }
 
     public void drawList(
@@ -59,8 +80,6 @@ public final class ListSection {
         int end = Math.min(rows.size(), scrollOffset + visible);
         int entryPaddingX = 2;
         int entryTextYOffset = 2;
-        int rankRowYOffset = 10;
-        int rankSquareSize = 10;
         int listContentWidth = LIST_WIDTH - (entryPaddingX * 2);
 
         if (selectedIndex >= rows.size()) {
@@ -75,22 +94,24 @@ public final class ListSection {
             int bottom = top + LIST_ITEM_HEIGHT - 1;
             int bg = i == selectedIndex ? 0xFFBBBBBB : 0xFFDDDDDD;
             context.fill(listX, top, listX + LIST_WIDTH, bottom, bg);
-            drawScaledText(context, textRenderer, getEnchantmentName(rowIndex), listX + entryPaddingX, top + entryTextYOffset, LIST_ITEM_TEXT_SCALE, 0xFF000000);
+            String name = getEnchantmentName(rowIndex);
+            float nameScale = calculateNameScale(name);
+            drawScaledText(context, textRenderer, name, listX + entryPaddingX, top + entryTextYOffset, nameScale, 0xFF000000);
 
             int rankStartX = listX + entryPaddingX;
-            int rankY = top + rankRowYOffset;
+            int rankY = top + RANK_ROW_Y_OFFSET;
             int maxRanks = getMaxRankForRow(rowIndex);
-            double rankGap = Math.max(1.0, (listContentWidth - (RANK_COUNT * rankSquareSize)) / (double) (RANK_COUNT + 1));
+            double rankGap = Math.max(1.0, (listContentWidth - (RANK_COUNT * RANK_SQUARE_SIZE)) / (double) (RANK_COUNT + 1));
             for (int r = 0; r < maxRanks; r++) {
-                int rx = rankStartX + (int) Math.round(rankGap + r * (rankSquareSize + rankGap));
+                int rx = rankStartX + (int) Math.round(rankGap + r * (RANK_SQUARE_SIZE + rankGap));
                 boolean hasRank = getLevelCount(rowIndex, r, handler) > 0;
-                boolean isHovered = mouseX >= rx && mouseX < rx + rankSquareSize
-                    && mouseY >= rankY && mouseY < rankY + rankSquareSize;
+                boolean isHovered = mouseX >= rx && mouseX < rx + RANK_SQUARE_SIZE
+                    && mouseY >= rankY && mouseY < rankY + RANK_SQUARE_SIZE;
                 int outerColor = hasRank ? 0xFF6F6F6F : 0xFF2F2F2F;
                 int innerColor = outerColor;
                 int textColor = hasRank ? 0xFFFFFFFF : 0xFFA0A0A0;
-                context.fill(rx, rankY, rx + rankSquareSize, rankY + rankSquareSize, outerColor);
-                context.fill(rx + 1, rankY + 1, rx + (rankSquareSize - 1), rankY + (rankSquareSize - 1), innerColor);
+                context.fill(rx, rankY, rx + RANK_SQUARE_SIZE, rankY + RANK_SQUARE_SIZE, outerColor);
+                context.fill(rx + 1, rankY + 1, rx + (RANK_SQUARE_SIZE - 1), rankY + (RANK_SQUARE_SIZE - 1), innerColor);
                 int borderColor = 0xFF000000;
                 if (hasRank && isHovered) {
                     borderColor = 0xFFFFFFFF;
@@ -98,18 +119,18 @@ public final class ListSection {
                 if (hasRank && selectedIndex == i && selectedLevel == r) {
                     borderColor = 0xFF3F76E4;
                 }
-                context.fill(rx, rankY, rx + rankSquareSize, rankY + 1, borderColor);
-                context.fill(rx, rankY + rankSquareSize - 1, rx + rankSquareSize, rankY + rankSquareSize, borderColor);
-                context.fill(rx, rankY, rx + 1, rankY + rankSquareSize, borderColor);
-                context.fill(rx + rankSquareSize - 1, rankY, rx + rankSquareSize, rankY + rankSquareSize, borderColor);
+                context.fill(rx, rankY, rx + RANK_SQUARE_SIZE, rankY + 1, borderColor);
+                context.fill(rx, rankY + RANK_SQUARE_SIZE - 1, rx + RANK_SQUARE_SIZE, rankY + RANK_SQUARE_SIZE, borderColor);
+                context.fill(rx, rankY, rx + 1, rankY + RANK_SQUARE_SIZE, borderColor);
+                context.fill(rx + RANK_SQUARE_SIZE - 1, rankY, rx + RANK_SQUARE_SIZE, rankY + RANK_SQUARE_SIZE, borderColor);
                 String numeral = getRomanNumeral(r);
                 float numeralScale = 0.6f;
 
                 // Center the roman numeral inside its square.
                 int textWidth = (int) (textRenderer.getWidth(numeral) * numeralScale);
                 int textHeight = (int) (textRenderer.fontHeight * numeralScale);
-                int textX = rx + (rankSquareSize - textWidth) / 2;
-                int textY = rankY + (rankSquareSize - textHeight) / 2 + 1;
+                int textX = rx + (RANK_SQUARE_SIZE - textWidth) / 2;
+                int textY = rankY + (RANK_SQUARE_SIZE - textHeight) / 2 + 1;
                 if (r >= 2) textX += 1;
                 drawScaledText(context, textRenderer, numeral, textX, textY, numeralScale, textColor);
             }
@@ -213,17 +234,17 @@ public final class ListSection {
     }
 
     public String getTotalRemainingText(EnchantmentExtractorScreenHandler handler) {
-        if (selectedIndex < 0) return "__";
+        if (selectedIndex < 0) return "＿";
         List<Integer> rows = getVisibleRows(handler);
-        if (selectedIndex >= rows.size()) return "__";
+        if (selectedIndex >= rows.size()) return "＿";
         int rowIndex = rows.get(selectedIndex);
         return String.valueOf(getTotalForRow(rowIndex, handler));
     }
 
     public String getLevelsRemainingText(EnchantmentExtractorScreenHandler handler) {
-        if (selectedIndex < 0 || selectedLevel < 0) return "__";
+        if (selectedIndex < 0 || selectedLevel < 0) return "＿";
         List<Integer> rows = getVisibleRows(handler);
-        if (selectedIndex >= rows.size()) return "__";
+        if (selectedIndex >= rows.size()) return "＿";
         int rowIndex = rows.get(selectedIndex);
         return String.valueOf(getLevelCount(rowIndex, selectedLevel, handler));
     }
@@ -290,11 +311,18 @@ public final class ListSection {
             return "";
         }
         Identifier id = enchantmentOrder.get(rowIndex);
+        String cachedName = enchantmentNameCache.get(id);
+        if (cachedName != null) {
+            return cachedName;
+        }
+
         String translationKey = "enchantment." + id.getNamespace() + "." + id.getPath();
         String name = Text.translatable(translationKey).getString();
         if (name.equals(translationKey)) {
-            return EnchantmentStorageUtils.formatFallbackName(id.getPath());
+            name = EnchantmentStorageUtils.formatFallbackName(id.getPath());
         }
+
+        enchantmentNameCache.put(id, name);
         return name;
     }
 
@@ -311,19 +339,17 @@ public final class ListSection {
 
     private int getRankIndexFromLocal(int localX, int localY, int rowIndex) {
         int entryPaddingX = 2;
-        int rankRowYOffset = 12;
-        int rankCellSize = 10;
         int listContentWidth = LIST_WIDTH - (entryPaddingX * 2);
-        double rankGap = Math.max(1.0, (listContentWidth - (RANK_COUNT * rankCellSize)) / (double) (RANK_COUNT + 1));
+        double rankGap = Math.max(1.0, (listContentWidth - (RANK_COUNT * RANK_SQUARE_SIZE)) / (double) (RANK_COUNT + 1));
         int rowIndexInList = localY / LIST_ITEM_HEIGHT;
         int rowTop = rowIndexInList * LIST_ITEM_HEIGHT;
-        int rankTop = rowTop + rankRowYOffset;
-        if (localY < rankTop || localY > rankTop + rankCellSize) return -1;
+        int rankTop = rowTop + RANK_ROW_Y_OFFSET;
+        if (localY < rankTop || localY > rankTop + RANK_SQUARE_SIZE) return -1;
         int rankStartX = entryPaddingX;
         int maxRanks = getMaxRankForRow(rowIndex);
         for (int r = 0; r < maxRanks; r++) {
-            int rx = rankStartX + (int) Math.round(rankGap + r * (rankCellSize + rankGap));
-            if (localX >= rx && localX <= rx + rankCellSize) return r;
+            int rx = rankStartX + (int) Math.round(rankGap + r * (RANK_SQUARE_SIZE + rankGap));
+            if (localX >= rx && localX <= rx + RANK_SQUARE_SIZE) return r;
         }
         return -1;
     }
@@ -348,13 +374,45 @@ public final class ListSection {
     }
 
     private List<Integer> getVisibleRows(EnchantmentExtractorScreenHandler handler) {
-        List<Integer> rows = new ArrayList<>();
+        MinecraftClient client = MinecraftClient.getInstance();
+        long worldTime = (client != null && client.world != null) ? client.world.getTime() : Long.MIN_VALUE;
+        if (worldTime == lastVisibleRowsWorldTime) {
+            return visibleRows;
+        }
+
+        int fingerprint = computeGridFingerprint(handler);
+        if (fingerprint == visibleRowsFingerprint) {
+            lastVisibleRowsWorldTime = worldTime;
+            return visibleRows;
+        }
+
+        visibleRows.clear();
         for (int row = 0; row < enchantmentOrder.size(); row++) {
             if (getTotalForRow(row, handler) > 0) {
-                rows.add(row);
+                visibleRows.add(row);
             }
         }
-        return rows;
+
+        visibleRowsFingerprint = fingerprint;
+
+        if (selectedIndex >= visibleRows.size()) {
+            selectedIndex = -1;
+            selectedLevel = -1;
+        }
+
+        lastVisibleRowsWorldTime = worldTime;
+        return visibleRows;
+    }
+
+    // For caching list value(s)
+    private int computeGridFingerprint(EnchantmentExtractorScreenHandler handler) {
+        int hash = 1;
+        for (int row = 0; row < enchantmentOrder.size(); row++) {
+            for (int col = 0; col < RANK_COUNT; col++) {
+                hash = (31 * hash) + handler.getGridValue(row, col);
+            }
+        }
+        return hash;
     }
 
     private int getTotalForRow(int rowIndex, EnchantmentExtractorScreenHandler handler) {
@@ -424,5 +482,14 @@ public final class ListSection {
         int barY = y + LIST_Y_OFFSET;
         int barHeight = LIST_HEIGHT - 1;
         return mouseX >= barX && mouseX < barX + SCROLL_WIDTH && mouseY >= barY && mouseY < barY + barHeight;
+    }
+
+    private float calculateNameScale(String name) {
+        float nameScale = LIST_ITEM_TEXT_SCALE;
+
+        if (name.length() > 15) nameScale = 0.6f;
+        if (name.length() > 17) nameScale = 0.53f;
+
+        return nameScale;
     }
 }

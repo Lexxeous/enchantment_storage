@@ -5,6 +5,7 @@ import com.lexxeous.enchantment_storage.block.EnchantmentExtractorBlock;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -33,8 +34,10 @@ public class ModBlocks implements ModInitializer {
     public static final Block ENCHANTMENT_EXTRACTOR_BLOCK =
             new EnchantmentExtractorBlock(AbstractBlock.Settings.create()
                     .registryKey(ENCHANTMENT_EXTRACTOR_BLOCK_KEY)
-                    .strength(5.0f, 6.0f)
-                    .requiresTool()
+                    .strength(5.0f, 1200.0f)
+                    .luminance(state -> 7)
+                    .pistonBehavior(PistonBehavior.BLOCK) // immovable
+                    .nonOpaque()
             );
 
     public static void register() {

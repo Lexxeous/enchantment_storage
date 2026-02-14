@@ -1,9 +1,9 @@
 package com.lexxeous.enchantment_storage.screen;
 
+import com.lexxeous.enchantment_storage.EnchantmentStorage;
 import com.lexxeous.enchantment_storage.screen.button.ButtonSection;
 import com.lexxeous.enchantment_storage.screen.infotext.InfoTextSection;
 import com.lexxeous.enchantment_storage.screen.list.ListSection;
-import com.lexxeous.enchantment_storage.screen.slot.SlotSection;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -17,15 +17,13 @@ import net.minecraft.util.Identifier;
 public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExtractorScreenHandler> {
     // region Constant(s)
     private static final Identifier BACKGROUND_TEXTURE =
-            Identifier.of("minecraft", "textures/gui/container/generic_54.png");
+            Identifier.of(EnchantmentStorage.MOD_ID, "textures/gui/container/enchantment_extractor.png");
+    private static final Identifier LAPIS_PLACEHOLDER_TEXTURE =
+            Identifier.ofVanilla("container/slot/lapis_lazuli");
 
     private final ListSection listSection = new ListSection();
-    private final SlotSection slotOutlines = new SlotSection();
     private final InfoTextSection infoText = new InfoTextSection();
     private final ButtonSection actionButtons = new ButtonSection();
-    // endregion
-
-    // region Class Variable(s)
     // endregion
 
     // region Constructor(s)
@@ -55,7 +53,7 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
         int y = (this.height - this.backgroundHeight) / 2;
 
         context.drawTexture(
-                RenderPipelines.GUI,
+                RenderPipelines.GUI_TEXTURED,
                 BACKGROUND_TEXTURE,
                 x, y,
                 0, 0,
@@ -63,10 +61,9 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
                 256, 256
         );
 
-        listSection.updateRegistryOrder(getEnchantmentRegistry());
         listSection.drawList(context, x, y, mouseX, mouseY, this.textRenderer, this.handler);
         listSection.drawScrollBar(context, x, y, this.handler);
-        slotOutlines.draw(context, x, y, this.handler);
+        drawInputPlaceholders(context, x, y);
         infoText.draw(context, x, y, listSection, this.handler, this.client, this.textRenderer);
     }
 
@@ -138,6 +135,20 @@ public class EnchantmentStorageClientScreen extends HandledScreen<EnchantmentExt
             return null;
         }
         return client.world.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT);
+    }
+
+    private void drawInputPlaceholders(net.minecraft.client.gui.DrawContext context, int x, int y) {
+        if (this.handler.getLapisStack().isEmpty() && this.handler.slots.size() > 0) {
+            var lapisSlot = this.handler.slots.get(0);
+            context.drawGuiTexture(
+                RenderPipelines.GUI_TEXTURED,
+                LAPIS_PLACEHOLDER_TEXTURE,
+                x + lapisSlot.x,
+                y + lapisSlot.y,
+                16,
+                16
+            );
+        }
     }
     // endregion
 
