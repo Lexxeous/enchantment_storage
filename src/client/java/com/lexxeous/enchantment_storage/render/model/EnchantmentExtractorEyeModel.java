@@ -11,18 +11,22 @@ import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.RenderLayer;
 
 public final class EnchantmentExtractorEyeModel extends Model<EnchantmentExtractorEyeRenderState> {
-    public EnchantmentExtractorEyeModel(ModelPart root) {
-        super(root, RenderLayer::getEntityCutoutNoCull);
-    }
+	// region Constructors
+	public EnchantmentExtractorEyeModel(ModelPart root) {
+		super(root, RenderLayer::getEntityCutoutNoCull);
+	}
+	// endregion
 
-    public static TexturedModelData getTexturedModelData() {
-        ModelData modelData = new ModelData();
-        ModelPartData root = modelData.getRoot();
-        root.addChild(
-            "eye",
-            ModelPartBuilder.create().uv(0, 0).cuboid(-4.0f, -4.0f, 0.0f, 8.0f, 8.0f, 0.0f),
-            ModelTransform.NONE
-        );
-        return TexturedModelData.of(modelData, 16, 16);
-    }
+	// region Helpers
+	public static TexturedModelData getTexturedModelData() {
+		ModelData modelData = new ModelData();
+		ModelPartData root = modelData.getRoot();
+		root.addChild(
+			"eye",
+			ModelPartBuilder.create().uv(0, 0).cuboid(-4.0f, -4.0f, 0.0f, 8.0f, 8.0f, 0.0f),
+			ModelTransform.NONE
+		);
+		return TexturedModelData.of(modelData, 16, 16);
+	}
+	// endregion
 }

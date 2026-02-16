@@ -1,5 +1,6 @@
 plugins {
 	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+	id 'com.diffplug.spotless' version '6.25.0'
 	id 'maven-publish'
 }
 
@@ -65,6 +66,13 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	testImplementation "org.junit.jupiter:junit-jupiter:5.12.0"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.12.0"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.12.0"
+	testImplementation "org.mockito:mockito-core:5.15.2"
+	testImplementation "org.mockito:mockito-inline:5.2.0"
+	testImplementation "org.mockito:mockito-junit-jupiter:5.15.2"
 }
 
 processResources {
@@ -79,12 +87,32 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
 }
 
+test {
+	useJUnitPlatform()
+}
+
 java {
 	// Loom will automatically attach sourcesJar to RemapSourcesJar task and "build" task
 	withSourcesJar() // DO NOT REMOVE
 
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
+}
+
+spotless {
+	lineEndings 'UNIX'
+
+	java {
+		target 'src/main/java/**/*.java', 'src/client/java/**/*.java'
+		removeUnusedImports()
+		importOrder()
+		trimTrailingWhitespace()
+	}
+
+	format 'misc', {
+		target '*.gradle', '.editorconfig', '.gitattributes', '.gitignore', '*.md'
+		trimTrailingWhitespace()
+	}
 }
 
 jar {
