@@ -8,6 +8,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.test.TestContext;
 
 public final class EnchantmentStorageRegistryGameTest {
+	// region Integration
 	@GameTest(structure = "fabric-gametest-api-v1:empty")
 	public void enchantmentExtractorRegistrations_exist(TestContext context) {
 		if (ModBlocks.ENCHANTMENT_EXTRACTOR_BLOCK == null) {
@@ -29,4 +30,5 @@ public final class EnchantmentStorageRegistryGameTest {
 
 		context.complete();
 	}
+	// endregion
 }

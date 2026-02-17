@@ -26,7 +26,7 @@ public final class DebugCommands {
 	private static final double RAYCAST_DISTANCE = 5.0;
 	private static final float RAYCAST_TICK_DELTA = 0.0f;
 	private static final int DEFAULT_SEED_ROWS = 4;
-	private static final int DEFAULT_SEED_BASE_COUNT = 1;
+	private static final int DEFAULT_SEED_QUANTITY = 1;
 	private static final int MAX_LAPIS_STACK = 64;
 	// endregion
 
@@ -40,18 +40,18 @@ public final class DebugCommands {
 			dispatcher.register(CommandManager.literal("es")
 				.requires(source -> source.hasPermissionLevel(2))
 				.then(CommandManager.literal("seed").executes(ctx ->
-					seedExtractor(ctx, DEFAULT_SEED_ROWS, DEFAULT_SEED_BASE_COUNT)
+					seedExtractor(ctx, DEFAULT_SEED_ROWS, DEFAULT_SEED_QUANTITY)
 				).then(CommandManager.argument("rows", IntegerArgumentType.integer(1, EnchantmentExtractorBlockEntity.GRID_ROWS))
 					.executes(ctx ->
-						seedExtractor(ctx, IntegerArgumentType.getInteger(ctx, "rows"), DEFAULT_SEED_BASE_COUNT)
+						seedExtractor(ctx, IntegerArgumentType.getInteger(ctx, "rows"), DEFAULT_SEED_QUANTITY)
 					).then(CommandManager.argument(
-						"baseCount",
+						"quantity",
 						IntegerArgumentType.integer(1, EnchantmentCategory.MAX_COUNT_PER_LEVEL)
 					).executes(ctx ->
 						seedExtractor(
 							ctx,
 							IntegerArgumentType.getInteger(ctx, "rows"),
-							IntegerArgumentType.getInteger(ctx, "baseCount")
+							IntegerArgumentType.getInteger(ctx, "quantity")
 						)
 					))
 				))
@@ -92,11 +92,11 @@ public final class DebugCommands {
 	// endregion
 
 	// region Debug
-	private static int seedExtractor(CommandContext<ServerCommandSource> ctx, int rows, int baseCount) {
-		EnchantmentStorage.logDebugDev("es seed rows={} baseCount={}", rows, baseCount);
+	private static int seedExtractor(CommandContext<ServerCommandSource> ctx, int rows, int quantity) {
+		EnchantmentStorage.logDebugDev("es seed rows={} quantity={}", rows, quantity);
 		return withTargetedExtractor(ctx, (source, extractor) -> {
-			extractor.applySeedCategories(rows, baseCount);
-			return String.format("Seeded %d row(s) with base count %d.", rows, baseCount);
+			extractor.applySeedCategories(rows, quantity);
+			return String.format("Seeded %d row(s) with quantity %d.", rows, quantity);
 		});
 	}
 
@@ -132,9 +132,9 @@ public final class DebugCommands {
 		EnchantmentStorage.logDebugDev("es inspect");
 		return withTargetedExtractor(ctx, (source, extractor) -> {
 			source.sendFeedback(() -> Text.literal("Targeted extractor inventory:"), false);
-			source.sendFeedback(() -> Text.literal("input: " + describeStack(extractor.getStack(EnchantmentExtractorBlockEntity.SLOT_INPUT))), false);
-			source.sendFeedback(() -> Text.literal("output: " + describeStack(extractor.getStack(EnchantmentExtractorBlockEntity.SLOT_OUTPUT))), false);
-			source.sendFeedback(() -> Text.literal("lapis: " + describeStack(extractor.getStack(EnchantmentExtractorBlockEntity.SLOT_LAPIS))), false);
+			source.sendFeedback(() -> Text.literal("Input: " + describeStack(extractor.getStack(EnchantmentExtractorBlockEntity.SLOT_INPUT))), false);
+			source.sendFeedback(() -> Text.literal("Output: " + describeStack(extractor.getStack(EnchantmentExtractorBlockEntity.SLOT_OUTPUT))), false);
+			source.sendFeedback(() -> Text.literal("Lapis: " + describeStack(extractor.getStack(EnchantmentExtractorBlockEntity.SLOT_LAPIS))), false);
 			return "";
 		});
 	}

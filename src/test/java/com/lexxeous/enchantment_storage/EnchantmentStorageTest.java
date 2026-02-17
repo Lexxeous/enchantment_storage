@@ -9,11 +9,14 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 class EnchantmentStorageTest {
+	// region Smoke
 	@Test
 	void modId_isStable() {
 		assertEquals("enchantment_storage", EnchantmentStorage.MOD_ID);
 	}
+	// endregion
 
+	// region Stability
 	@Test
 	void logDebugDev_isSafeOutsideDevelopmentEnvironment() {
 		try (MockedStatic<FabricLoader> fabricLoaderStatic = Mockito.mockStatic(FabricLoader.class)) {
@@ -25,4 +28,5 @@ class EnchantmentStorageTest {
 			Mockito.verify(loader).isDevelopmentEnvironment();
 		}
 	}
+	// endregion
 }

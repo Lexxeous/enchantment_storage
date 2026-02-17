@@ -283,9 +283,9 @@ public class EnchantmentExtractorBlockEntity extends BlockEntity implements Side
 	// endregion
 
 	// region Helpers
-	public void applySeedCategories(int rows, int baseCount) {
+	public void applySeedCategories(int rows, int quantity) {
 		applyCategories(
-			EnchantmentCategoriesHarness.buildSeedCategories(getEnchantmentRegistry(), rows, baseCount),
+			EnchantmentCategoriesHarness.buildSeedCategories(getEnchantmentRegistry(), rows, quantity),
 			computeRegistryOrder()
 		);
 	}

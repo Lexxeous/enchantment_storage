@@ -9,12 +9,15 @@ import net.fabricmc.api.ClientModInitializer;
 import org.junit.jupiter.api.Test;
 
 class EnchantmentStorageClientTest {
+	// region Smoke
 	@Test
 	void clientInitializer_isFinalAndImplementsClientModInitializer() {
 		assertTrue(Modifier.isFinal(EnchantmentStorageClient.class.getModifiers()));
 		assertInstanceOf(ClientModInitializer.class, new EnchantmentStorageClient());
 	}
+	// endregion
 
+	// region Stability
 	@Test
 	void className_staysStableForEntrypointConfiguration() {
 		assertEquals(
@@ -22,4 +25,5 @@ class EnchantmentStorageClientTest {
 			EnchantmentStorageClient.class.getName()
 		);
 	}
+	// endregion
 }

@@ -17,10 +17,10 @@ public final class EnchantmentCategoriesHarness {
 	public static EnchantmentCategories buildSeedCategories(
 		@Nullable Registry<Enchantment> registry,
 		int rows,
-		int baseCount
+		int quantity
 	) {
 		EnchantmentCategories categories = new EnchantmentCategories();
-		if (registry == null || rows <= 0 || baseCount <= 0) {
+		if (registry == null || rows <= 0 || quantity <= 0) {
 			return categories;
 		}
 
@@ -28,8 +28,15 @@ public final class EnchantmentCategoriesHarness {
 		int limit = Math.min(order.size(), rows);
 		for (int i = 0; i < limit; i++) {
 			Identifier id = order.get(i);
-			categories.increment(id, Math.min(EnchantmentCategory.MAX_LEVELS - 1, i), baseCount + i);
-			categories.increment(id, 0, 1);
+			Enchantment enchantment = registry.get(id);
+			if (enchantment == null) {
+				continue;
+			}
+
+			int maxRanks = Math.min(EnchantmentCategory.MAX_LEVELS, enchantment.getMaxLevel());
+			for (int levelIndex = 0; levelIndex < maxRanks; levelIndex++) {
+				categories.setCount(id, levelIndex, quantity);
+			}
 		}
 		return categories;
 	}
