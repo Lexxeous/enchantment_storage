@@ -53,7 +53,7 @@ This mod was born from the frustration of overflowing inventory, chests, & shulk
 So instead of wasting valuable storage space, and spending way too much time organizing enchanted items,
 now you can remove the enchantments and use them somewhere else. Of course this benefit doesn't come for free.
 Each transaction of *storing* or *extracting* enchantments costs 1 experience level per enchantment level. But,
-this cost can be reduced, or even nullified, by consuming lapis lazuli. Work smart, not hard. Save space, time, & sanity. 
+this cost can be reduced, or even nullified, by consuming lapis lazuli. Work smart, not hard. Save space, time, & sanity.
 
 ## Player Usage
 
