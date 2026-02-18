@@ -9,6 +9,9 @@
 ## Distribution
 - [ ] Register on CurseForge
 - [ ] Add same README from GitHub and add gallery with shaders
+- [ ] Pass Gradle build CICD build pipeline through GH
+- [ ] Create a release on GH with .zip source and .jar
+- [ ] Post on reddit
 
 ## Future
 - [ ] Consider `v1 -> v2` data versioning migration

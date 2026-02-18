@@ -1,26 +1,38 @@
-# Enchantment Storage
+<h1 align="center" id="enchantment-storage">Enchantment Storage</h1>
 
-![Fabric Loader](https://img.shields.io/badge/Fabric%20Loader-0.18.4-purple)
-![Minecraft](https://img.shields.io/badge/Minecraft-1.21.10-green)
-![Release](https://img.shields.io/badge/Release-v1.0.0-informational)
-![Stable](https://img.shields.io/badge/Channel-Stable-brightgreen)
+<p align="center">
+	<img alt="Fabric Loader" src="https://img.shields.io/badge/Fabric%20Loader-0.18.4-purple" />
+	<img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-1.21.10-green" />
+	<img alt="Release" src="https://img.shields.io/badge/Release-v1.0.0-informational" />
+	<img alt="Stable" src="https://img.shields.io/badge/Channel-Stable-brightgreen" />
+</p>
 
-> minecraft skin placeholder
+<h6 align="center" id="lexx-mod">A Lexxeous Mod</h5>
 
-## Table of Contents
+<p align="center">
+	<img
+		src="media/banner.png"
+		alt="Lexxeous Mods Banner"
+		style="border: 5px solid #3a3a3a; border-radius: 120px;"
+	>
+</p>
 
+# Table of Contents
+
+- [Summary](#summary)
 - [Player Usage](#player-usage)
   - [Installation](#installation)
   - [Crafting Recipes](#crafting-recipes)
   - [GUI Basics](#gui-basics)
   - [Store & Extract Flow](#store--extract-flow)
   - [Experience & Lapis Cost](#experience--lapis-cost)
+  - [Compatibility](#compatibility)
 - [Hopper Behavior](#hopper-behavior)
 - [Gallery](#gallery)
 - [Debug Commands](#debug-commands)
 - [Developer Notes](#developer-notes)
   - [Gradle](#gradle)
-  - [JVM Args](#jvm-args)
+  - [JVM Args](#jvm-arguments)
   - [Spotless](#spotless)
   - [Unit Testing](#unit-testing)
   - [Game Testing](#game-testing)
@@ -28,70 +40,157 @@
 - [Clean Code Guidelines](#clean-code-guidelines)
 - [Source Regions](#source-regions)
 - [Unit Test Regions](#unit-test-regions)
-- [GitHub Repository](#github-repository)
+- [GitHub Repository](#repository)
 - [PRs & Issues](#prs--issues)
 - [Donations](#donations)
 - [License](#license)
+
+## Summary
+
+The Enchantment Storage mod adds one new block to Minecraft, the *Enchantment Extractor*.
+The purpose of the Enchantment Extractor is to provide a centralized place to store all the enchantments you collect.
+This mod was born from the frustration of overflowing inventory, chests, & shulker boxes with unstackable enchanted items.
+So instead of wasting valuable storage space, and spending way too much time organizing enchanted items,
+now you can remove the enchantments and use them somewhere else. Of course this benefit doesn't come for free.
+Each transaction of *storing* or *extracting* enchantments costs 1 experience level per enchantment level. But,
+this cost can be reduced, or even nullified, by consuming lapis lazuli. Work smart, not hard. Save space, time, & sanity. 
 
 ## Player Usage
 
 ### Installation
 
-- Place the downloaded `.jar` file into your Minecraft `mods/` folder.
-- Use the same Minecraft version as this mod (`1.21.10`) and ensure Fabric Loader + Fabric API are installed.
+- Download the **Enchantment Storage** `.jar` file.
+- Place the `enchantment_storage-x.y.z.jar` file into your Minecraft `mods/` folder.
+- Use the same Minecraft version as this mod (`1.21.10`).
+- Ensure
+[Fabric Loader](https://fabricmc.net/use/installer/) &
+[Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api/files/all?version=1.21.10&gameVersionTypeId=4) are installed.
 
 ### Crafting Recipes
 
-There are two valid shaped recipes to craft an `Enchantment Extractor`:
+There are two valid shaped recipes to craft an *Enchantment Extractor*, requiring the following materials:
 
-Requires:
   * Obsidian x4
   * Lapis Lazuli x2
   * Ender Eye x1
   * Dragon's Breath or End Crystal x2
 
-> crafting recipes placeholder
+<p align="center">
+	<img
+		src="media/crafting1.png"
+		alt="Crafting recipe 1" width="40%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+	<img
+		src="media/crafting2.png"
+		alt="Crafting recipe 2" width="40%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+</p>
 
 ### GUI Basics
 
-- Slot layout:
+#### Slot layout:
   - Top input slot can only hold lapis lazuli
   - Bottom input slot can only hold books, enchanted books, or enchanted items
   - Right slot is output only
-- Two action buttons:
-  - `Store`: pulls enchantments from bottom input into internal storage
+#### Action buttons:
+  - `Store`: pulls enchantments from bottom input slot into internal storage
   - `Extract`: applies selected enchantment onto a book (cannot extract onto other items)
 
-> GUI placeholder
+> NOTE: You cannot extract enchantments directly onto items or tools, only books or enchanted books.
 
 ### Store & Extract Flow
 
-1. Place lapis in top slot.
-2. Place an enchanted item or enchanted book in input slot, then press `Store`.
+1. Place lapis lazuli in top input slot.
+2. Place an enchanted item or enchanted book in input slot, then click `Store`.
 3. Select a stored enchantment level from the list.
-4. Place a book in bottom input, then press `Extract`.
+4. Place a book or enchanted book in bottom input slot, then click `Extract`.
 5. Take result from output slot.
 
 ### Experience & Lapis Cost
 
-- `Store` base XP cost = total enchantment levels on the input item/book
-- `Extract` base XP cost = selected enchantment rank (`I=1`, `II=2`, `III=3`, etc.)
-- Lapis gives a direct discount of 1 experience level per lapis
-- One lapis is consumed per level discounted
+- `Store` XP cost = total sum of enchantment levels on input item, book, or enchanted book.
+- `Extract` XP cost = selected enchantment level (*Mending* costs 1 level. *Smite V* costs 5 levels.)
+- Lapis lazuli gives a direct discount of 1 experience level.
+- One lapis lazuli is consumed per level discounted.
 
-> store and extract example placeholders
+<p align="center">
+	<img
+		src="media/discounted_store.png"
+		alt="Discounted Store" width="40%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+	<img
+		src="media/default_extract.png"
+		alt="Default Extract" width="40%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+</p>
+<p align="center">
+	<img
+		src="media/unenchanted_item.png"
+		alt="Unenchanted Item" width="40%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+	<img
+		src="media/insufficient_xp.png"
+		alt="Insufficient Experience" width="40%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+</p>
+
+### Compatibility
+
+- This mod is compatible with all "Vanilla" MineCraft enchantments.
+- This mod is also compatible with modded, non-"Vanilla" enchantments.
 
 ## Hopper Behavior
 
-- Top face (`UP`): for lapis slot only.
-- Side faces (`N/E/S/W`): for item input slot only.
+- Top face (`UP`): for lapis lazuli top input slot only.
+- Side faces (`N/S/E/W`): for item, book, & enchanted book input slot only.
 - Bottom face (`DOWN`): for output slot extraction only.
 
-> hopper setup placeholder
+<p align="center">
+	<img src="media/hoppers.png"
+	 alt="Insufficient Experience"
+	 width="80%"
+	 style="border: 10px solid #3a3a3a; border-radius: 8px;"/>
+</p>
 
 ## Gallery
 
-> gallery placeholder
+<p align="center">
+	<img
+		src="media/riverside.png"
+		alt="Gallery: Riverside" width="40%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+	<img
+		src="media/dark_closeup.png"
+		alt="Gallery: Dark Closeup" width="40%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+</p>
+<p align="center">
+	<img
+		src="media/day_tower.png"
+		alt="Gallery: Day Tower" width="40%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+	<img
+		src="media/night_tower.png"
+		alt="Gallery: Night Tower" width="40%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+</p>
+<p align="center">
+	<img
+		src="media/full_moon.png"
+		alt="Gallery: Full Moon" width="80%"
+		style="border: 5px solid #3a3a3a; border-radius: 8px;"
+	/>
+</p>
 
 ## Debug Commands
 
@@ -125,17 +224,13 @@ Use`.\gradlew <task>` to run Gradle wrapper tasks.
 | `spotlessApply` | Applies Spotless formatting fixes automatically.        |
 | `clean`         | Deletes the build directory for a fresh rebuild.        |
 
-> Use `--refresh-dependencies` to force Gradle to do a full rebuild.
+> Use `--refresh-dependencies` to force a full Gradle rebuild.
 
-### JVM Args
+### JVM Arguments
 
-- Global Gradle JVM args from `gradle.properties`
 - Java version requirement: `Java 21`
-- Client run profile JVM args from `build.gradle`:
-  - `-Xms1G`
-  - `-Xmx2G`
-  - `-XX:+UseG1GC`
-  - `-XX:MaxGCPauseMillis=100`
+- Global Gradle JVM arguments location: `gradle.properties`
+- Other Gradle dependencies location: `build.gradle`:
 
 ### Spotless
 
@@ -209,14 +304,14 @@ Use`.\gradlew <task>` to run Gradle wrapper tasks.
 | `Stability`   | Top-level behavior validation             |
 | `Integration` | Screen/block entity/game test integration |
 
-## GitHub Repository
+## Repository
 
-- https://github.com/Lexxeous/enchantment_storage
+Check out the [source code](https://github.com/Lexxeous/enchantment_storage) on GitHub.
 
 ## PRs & Issues
 
-- Pull Requests: https://github.com/Lexxeous/enchantment_storage/pulls
-- Issues: https://github.com/Lexxeous/enchantment_storage/issues
+- Create a [pull request](https://github.com/Lexxeous/enchantment_storage/pulls) to contribute features and bug fixes.
+- If you find a problem with the mod, create an [issue](https://github.com/Lexxeous/enchantment_storage/issues).
 
 ## Donations
 
@@ -225,4 +320,4 @@ Use`.\gradlew <task>` to run Gradle wrapper tasks.
 
 ## License
 
-Click here to view the [license](LICENSE).
+View the [license](https://github.com/Lexxeous/enchantment_storage/blob/master/LICENSE).
