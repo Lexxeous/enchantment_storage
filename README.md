@@ -4,7 +4,7 @@
 	<img alt="Fabric Loader" src="https://img.shields.io/badge/Fabric%20Loader-0.18.4-purple" />
 	<img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-1.21.10-green" />
 	<img alt="Release" src="https://img.shields.io/badge/Release-v1.0.0-informational" />
-	<img alt="Stable" src="https://img.shields.io/badge/Channel-Stable-brightgreen" />
+	<img alt="Status" src="https://img.shields.io/badge/Status-Stable-brightgreen" />
 </p>
 
 <h6 align="center" id="lexx-mod">A Lexxeous Mod</h5>
@@ -12,7 +12,7 @@
 <p align="center">
 	<img
 		src="media/banner.png"
-		alt="Lexxeous Mods Banner"
+		alt="Lexxeous Mods Banner" width="100%"
 		style="border: 5px solid #3a3a3a; border-radius: 120px;"
 	>
 </p>
@@ -47,8 +47,8 @@
 
 ## Summary
 
-The Enchantment Storage mod adds one new block to Minecraft, the *Enchantment Extractor*.
-The purpose of the Enchantment Extractor is to provide a centralized place to store all the enchantments you collect.
+The **Enchantment Storage** mod adds one new block to Minecraft, the *Enchantment Extractor*.
+The purpose of the *Enchantment Extractor* is to provide a centralized place to store all the enchantments you collect.
 This mod was born from the frustration of overflowing inventory, chests, & shulker boxes with unstackable enchanted items.
 So instead of wasting valuable storage space, and spending way too much time organizing enchanted items,
 now you can remove the enchantments and use them somewhere else. Of course this benefit doesn't come for free.
@@ -78,12 +78,12 @@ There are two valid shaped recipes to craft an *Enchantment Extractor*, requirin
 <p align="center">
 	<img
 		src="media/crafting1.png"
-		alt="Crafting recipe 1" width="40%"
+		alt="Crafting recipe 1" width="49%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 	<img
 		src="media/crafting2.png"
-		alt="Crafting recipe 2" width="40%"
+		alt="Crafting recipe 2" width="49%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 </p>
@@ -91,71 +91,70 @@ There are two valid shaped recipes to craft an *Enchantment Extractor*, requirin
 ### GUI Basics
 
 #### Slot layout:
-  - Top input slot can only hold lapis lazuli
-  - Bottom input slot can only hold books, enchanted books, or enchanted items
-  - Right slot is output only
+  - The top input slot can only hold lapis lazuli.
+  - The bottom input slot can only hold books, enchanted books, or enchanted items.
+  - The right slot is output only.
 #### Action buttons:
-  - `Store`: pulls enchantments from bottom input slot into internal storage
-  - `Extract`: applies selected enchantment onto a book (cannot extract onto other items)
+  - `Store`: pulls enchantments from bottom input slot into internal storage.
+  - `Extract`: applies selected enchantment onto a book or enchanted book.
 
 > NOTE: You cannot extract enchantments directly onto items or tools, only books or enchanted books.
 
 ### Store & Extract Flow
 
 1. Place lapis lazuli in top input slot.
-2. Place an enchanted item or enchanted book in input slot, then click `Store`.
+2. Place an enchanted item or enchanted book in the input slot, then click `Store`.
 3. Select a stored enchantment level from the list.
 4. Place a book or enchanted book in bottom input slot, then click `Extract`.
-5. Take result from output slot.
+5. Take result from the output slot.
 
 ### Experience & Lapis Cost
 
 - `Store` XP cost = total sum of enchantment levels on input item, book, or enchanted book.
-- `Extract` XP cost = selected enchantment level (*Mending* costs 1 level. *Smite V* costs 5 levels.)
+- `Extract` XP cost = selected enchantment level (*Mending* costs 1 level. *Smite V* costs 5 levels).
 - Lapis lazuli gives a direct discount of 1 experience level.
 - One lapis lazuli is consumed per level discounted.
 
 <p align="center">
 	<img
 		src="media/discounted_store.png"
-		alt="Discounted Store" width="40%"
+		alt="Discounted Store" width="49%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 	<img
 		src="media/default_extract.png"
-		alt="Default Extract" width="40%"
+		alt="Default Extract" width="49%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 </p>
 <p align="center">
 	<img
 		src="media/unenchanted_item.png"
-		alt="Unenchanted Item" width="40%"
+		alt="Unenchanted Item" width="49%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 	<img
 		src="media/insufficient_xp.png"
-		alt="Insufficient Experience" width="40%"
+		alt="Insufficient Experience" width="49%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 </p>
 
 ### Compatibility
 
-- This mod is compatible with all "Vanilla" MineCraft enchantments.
+- This mod is compatible with all "Vanilla" Minecraft enchantments.
 - This mod is also compatible with modded, non-"Vanilla" enchantments.
 
 ## Hopper Behavior
 
-- Top face (`UP`): for lapis lazuli top input slot only.
-- Side faces (`N/S/E/W`): for item, book, & enchanted book input slot only.
-- Bottom face (`DOWN`): for output slot extraction only.
+- The top face (`UP`) is for the lapis lazuli top input slot only.
+- The side faces (`N/S/E/W`) are for the item, book, & enchanted book input slot only.
+- The bottom face (`DOWN`) is for the output slot extraction only.
 
 <p align="center">
 	<img src="media/hoppers.png"
-	 alt="Insufficient Experience"
-	 width="80%"
-	 style="border: 10px solid #3a3a3a; border-radius: 8px;"/>
+	 alt="Insufficient Experience" width="100%"
+	 style="border: 5px solid #3a3a3a; border-radius: 8px;"/>
 </p>
 
 ## Gallery
@@ -163,31 +162,31 @@ There are two valid shaped recipes to craft an *Enchantment Extractor*, requirin
 <p align="center">
 	<img
 		src="media/riverside.png"
-		alt="Gallery: Riverside" width="40%"
+		alt="Gallery: Riverside" width="49%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 	<img
 		src="media/dark_closeup.png"
-		alt="Gallery: Dark Closeup" width="40%"
+		alt="Gallery: Dark Closeup" width="49%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 </p>
 <p align="center">
 	<img
 		src="media/day_tower.png"
-		alt="Gallery: Day Tower" width="40%"
+		alt="Gallery: Day Tower" width="49%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 	<img
 		src="media/night_tower.png"
-		alt="Gallery: Night Tower" width="40%"
+		alt="Gallery: Night Tower" width="49%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 </p>
 <p align="center">
 	<img
 		src="media/full_moon.png"
-		alt="Gallery: Full Moon" width="80%"
+		alt="Gallery: Full Moon" width="100%"
 		style="border: 5px solid #3a3a3a; border-radius: 8px;"
 	/>
 </p>
@@ -213,18 +212,18 @@ Debug commands are dev-only and require permission level `2`. Root command: `/es
 
 Use`.\gradlew <task>` to run Gradle wrapper tasks.
 
-| Task            | Description                                             |
-|-----------------|---------------------------------------------------------|
-| `runClient`     | Launches the Minecraft client with the mod in dev mode. |
-| `build`         | Compiles, tests, and builds the mod jar.                |
-| `test`          | Runs JUnit unit tests.                                  |
-| `runGameTest`   | Runs Fabric/Minecraft game tests.                       |
-| `runDatagen`    | Runs data generation for assets/data outputs.           |
-| `spotlessCheck` | Verifies formatting/lint rules configured by Spotless.  |
-| `spotlessApply` | Applies Spotless formatting fixes automatically.        |
-| `clean`         | Deletes the build directory for a fresh rebuild.        |
+| Task            | Description                                                 |
+|-----------------|-------------------------------------------------------------|
+| `runClient`     | Launches the Minecraft client with the mod in dev mode.     |
+| `build`         | Compiles, tests, and builds the mod jar.                    |
+| `test`          | Runs JUnit unit tests.                                      |
+| `runGameTest`   | Runs Fabric/Minecraft game tests.                           |
+| `runDatagen`    | Runs data generation for assets/data outputs.               |
+| `spotlessCheck` | Verifies formatting & linting rules configured by Spotless. |
+| `spotlessApply` | Applies Spotless formatting fixes automatically.            |
+| `clean`         | Deletes the build directory for a fresh rebuild.            |
 
-> Use `--refresh-dependencies` to force a full Gradle rebuild.
+> Use the `--refresh-dependencies` flag to force a full Gradle rebuild.
 
 ### JVM Arguments
 
@@ -253,9 +252,9 @@ Use`.\gradlew <task>` to run Gradle wrapper tasks.
 
 ### Enchantment Registry
 
-- Implemented in `src/main/java/com/lexxeous/enchantment_storage/blockentity/EnchantmentExtractorBlockEntity.java:140`.
-- Purpose: resolve the enchantment registry from world registry manager.
-- Returns `null` when world is unavailable, so callers must handle nullable results.
+- Implemented by the `getEnchantmentRegistry()` method.
+- The purpose is to resolve the enchantment registry from the world registry manager.
+- The method returns `null` when the world is unavailable, so callers must handle nullable results.
 
 ## Clean Code Guidelines
 
@@ -294,15 +293,15 @@ Use`.\gradlew <task>` to run Gradle wrapper tasks.
 
 ## Unit Test Regions
 
-| Region        | Scope                                     |
-|---------------|-------------------------------------------|
-| `Vanilla`     | Vanilla enchantment/runtime assumptions   |
-| `Modded`      | Modded compatibility behavior             |
-| `Smoke`       | Fast pass/fail sanity tests               |
-| `Confidence`  | Core logic utilities                      |
-| `Regression`  | Bugfix lock-in tests                      |
-| `Stability`   | Top-level behavior validation             |
-| `Integration` | Screen/block entity/game test integration |
+| Region        | Scope                                      |
+|---------------|--------------------------------------------|
+| `Vanilla`     | Vanilla enchantment/runtime assumptions.   |
+| `Modded`      | Modded compatibility behavior.             |
+| `Smoke`       | Fast pass/fail sanity tests.               |
+| `Confidence`  | Core logic utilities.                      |
+| `Regression`  | Bugfix lock-in tests.                      |
+| `Stability`   | Top-level behavior validation.             |
+| `Integration` | Screen/block entity/game test integration. |
 
 ## Repository
 
@@ -311,7 +310,7 @@ Check out the [source code](https://github.com/Lexxeous/enchantment_storage) on 
 ## PRs & Issues
 
 - Create a [pull request](https://github.com/Lexxeous/enchantment_storage/pulls) to contribute features and bug fixes.
-- If you find a problem with the mod, create an [issue](https://github.com/Lexxeous/enchantment_storage/issues).
+- If you find a problem with the mod, please create an [issue](https://github.com/Lexxeous/enchantment_storage/issues).
 
 ## Donations
 
